@@ -3,7 +3,6 @@ from splinter import Browser
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
-import time
 
 def init_browser():
     executable_path = {'executable_path': ChromeDriverManager().install()}
@@ -28,16 +27,14 @@ def scrape():
 
   # JPL Mars Space Images
   # Save image url for the current Featured Mars Image 
-  url = 'https://www.jpl.nasa.gov/images?search=&category=Mars'
+  url = 'https://spaceimages-mars.com/'
   browser.visit(url)
-  browser.find_by_id('filter_Mars').click()
-  browser.find_by_css('.SearchResultCard').click()
 
-  time.sleep(5)
   html = browser.html
   soup = BeautifulSoup(html, 'lxml')
 
-  featured_image_url = soup.find('img', class_='BaseImage')['data-srcset'].split(' ')[-2]
+  image = soup.find('img', class_="headerimage")['src']
+  featured_image_url = url + image
   mars_data['featured_image_url'] = featured_image_url
 
   # Mars Facts
@@ -45,11 +42,14 @@ def scrape():
   url = 'https://space-facts.com/mars/'
 
   tables = pd.read_html(url)
+  
+  df = tables[1]
+  df.rename({"Mars - Earth Comparison": "Description"}, axis=1, inplace=True)
+  df.set_index(['Description'],inplace=True)
 
-  df = tables[0]
-  df
-
-  facts_table = df.to_html(header=False,index=False)
+  facts_table = df.to_html()
+  facts_table = '\n'.join(facts_table.split('\n')[1:-1])
+  
   mars_data['facts_table'] = facts_table
 
   # Mars Hemispheres

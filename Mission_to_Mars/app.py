@@ -11,7 +11,6 @@ mongo = PyMongo(app)
 # Or set inline
 # mongo = PyMongo(app, uri="mongodb://localhost:27017/craigslist_app")
 
-
 @app.route("/")
 def index():
     data = mongo.db.data.find_one()
