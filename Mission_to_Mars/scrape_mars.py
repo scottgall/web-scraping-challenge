@@ -6,7 +6,7 @@ import pandas as pd
 
 def init_browser():
     executable_path = {'executable_path': ChromeDriverManager().install()}
-    return Browser('chrome', **executable_path, headless=False)
+    return Browser('chrome', **executable_path, headless=True)
 
 def scrape():
   browser = init_browser()
@@ -54,7 +54,7 @@ def scrape():
 
   # Mars Hemispheres
   # Save high res images for each hemisphere
-  url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+  url = 'https://marshemispheres.com/'
   browser.visit(url)
 
   hemisphere_image_urls = []
@@ -63,7 +63,7 @@ def scrape():
       html = browser.html
       soup = BeautifulSoup(html, 'lxml')
       title = soup.find('h2', class_='title').text.split(' Enhanced')[0]
-      img_url = 'https://astrogeology.usgs.gov/' + soup.find('img', class_='wide-image')['src']
+      img_url = url + soup.find('img', class_='wide-image')['src']
       hemisphere_image_urls.append({"title": title, "image_url": img_url})
       browser.visit(url)
   mars_data['hemisphere_image_urls'] = hemisphere_image_urls
